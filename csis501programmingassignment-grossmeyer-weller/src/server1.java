@@ -38,7 +38,7 @@ public class server1 {
 		BufferedReader inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
 		
 		while(true)
-		{			
+		{
 			//Read the menu choice that the client user has selected
 			clientInput = in.readLine();
 			System.out.println(clientInput);
@@ -115,29 +115,8 @@ public class server1 {
 		}
 	}
 	
-	public static boolean testConnectionPrev(int p)
+	public static boolean testConnection(int p)
 	{
-		TelnetClient client = new TelnetClient();
-		client.setConnectTimeout(5000);
-		
-		 try
-		 {
-			 client.connect("localhost", p);
-		 }
-		 catch (SocketException socketException)
-		 {		 
-			return false;
-		 }
-		 catch (IOException ioException)
-		 { 
-		    return false;
-		 }
-		 
-		 return true;
-	}
-	
-	public static boolean testConnectionNext(int p)
-	{	
 		TelnetClient client = new TelnetClient();
 		client.setConnectTimeout(5000);
 		

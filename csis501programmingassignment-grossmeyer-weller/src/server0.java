@@ -80,6 +80,9 @@ public class server0 {
 						}
 						else
 						{
+							System.out.println(choice);
+							System.out.println(key);
+							System.out.println(value);
 							//Send necessary values to next peer in circle
 							outNextServer.println(choice);
 							outNextServer.println(key);
@@ -126,7 +129,7 @@ public class server0 {
 			}
 			catch(SocketException e)
 			{
-/*				if(socket.isClosed())
+/*				if(!testConnection(port))
 				{
 					System.out.println("Previous server disconnected");	
 					System.out.println("Waiting for incoming connections");
@@ -136,43 +139,23 @@ public class server0 {
 					out = new PrintWriter(socket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				}
-*/				if(socketNextServer.isClosed())
+*/				
+				if(!testConnection(nextPort))
 				{
 					nextPort++;
-					
+
 					//Create socket and input and output streams to next peer in the circle
 					socketNextServer = new Socket("localhost",nextPort);
 					outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
 					inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
+					System.out.println("You are here");
 				}
-
 			}
 		}
 	}
 	
-	public static boolean testConnectionPrev(int p)
+	public static boolean testConnection(int p)
 	{
-		TelnetClient client = new TelnetClient();
-		client.setConnectTimeout(5000);
-		
-		 try
-		 {
-			 client.connect("localhost", p);
-		 }
-		 catch (SocketException socketException)
-		 {		 
-			return false;
-		 }
-		 catch (IOException ioException)
-		 { 
-		    return false;
-		 }
-		 
-		 return true;
-	}
-	
-	public static boolean testConnectionNext(int p)
-	{	
 		TelnetClient client = new TelnetClient();
 		client.setConnectTimeout(5000);
 		

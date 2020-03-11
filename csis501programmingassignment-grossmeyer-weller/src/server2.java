@@ -117,17 +117,21 @@ public class server2 {
 			}
 			catch(SocketException e)
 			{
-				if(socket.isClosed())
+				if(!testConnection(port))
 				{
-					System.out.println("Previous server disconnected");	
+					serversocket.close();	
+					
+					serversocket = new ServerSocket(port);
 					System.out.println("Waiting for incoming connections");
 					
 					//Accept the connection on the socket and create input and output streams
 					socket = serversocket.accept();
 					out = new PrintWriter(socket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					System.out.println("You are here");
+					throw e;
 				}
-/*				else if(socketNextServer.isClosed())
+/*				else if(!testConnection(nextPort))
 				{
 					nextPort++;
 					
@@ -136,33 +140,13 @@ public class server2 {
 					outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
 					inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
 				}
-*/			}
+*/			
+			}
 		}
 	}
 	
-	public static boolean testConnectionPrev(int p)
+	public static boolean testConnection(int p)
 	{
-		TelnetClient client = new TelnetClient();
-		client.setConnectTimeout(5000);
-		
-		 try
-		 {
-			 client.connect("localhost", p);
-		 }
-		 catch (SocketException socketException)
-		 {		 
-			return false;
-		 }
-		 catch (IOException ioException)
-		 { 
-		    return false;
-		 }
-		 
-		 return true;
-	}
-	
-	public static boolean testConnectionNext(int p)
-	{	
 		TelnetClient client = new TelnetClient();
 		client.setConnectTimeout(5000);
 		

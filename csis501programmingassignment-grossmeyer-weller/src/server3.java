@@ -115,29 +115,8 @@ public class server3 {
 		}
 	}
 	
-	public static boolean testConnectionPrev(int p)
+	public static boolean testConnection(int p)
 	{
-		TelnetClient client = new TelnetClient();
-		client.setConnectTimeout(5000);
-		
-		 try
-		 {
-			 client.connect("localhost", p);
-		 }
-		 catch (SocketException socketException)
-		 {		 
-			return false;
-		 }
-		 catch (IOException ioException)
-		 { 
-		    return false;
-		 }
-		 
-		 return true;
-	}
-	
-	public static boolean testConnectionNext(int p)
-	{	
 		TelnetClient client = new TelnetClient();
 		client.setConnectTimeout(5000);
 		
