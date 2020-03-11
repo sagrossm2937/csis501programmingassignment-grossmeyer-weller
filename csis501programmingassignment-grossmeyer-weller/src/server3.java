@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import org.apache.commons.net.telnet.TelnetClient;
+
 public class server3 {
 	
 	static int TABLE_SIZE = 16;
@@ -14,13 +16,15 @@ public class server3 {
 		int choice;
 		String key, value;
 		int hashKey;
+		int port = 9003;
+		int nextPort = 9004;
 		
 		//Create the hash table and put an initial value in it
 		Hashtable<String, String> h = new Hashtable<String, String>();		
 		h.put("James Bond", "128.17.123.41");
 
 		//Listen for incoming connections from previous peer in circle
-		ServerSocket serversocket = new ServerSocket(9003);			
+		ServerSocket serversocket = new ServerSocket(port);			
 		System.out.println("Waiting for incoming connections");
 
 		//Accept the connection on the socket and create input and output streams
@@ -29,12 +33,12 @@ public class server3 {
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		
 		//Create socket and input and output streams to next peer in the circle
-		Socket socketNextServer = new Socket("localhost",9004);
+		Socket socketNextServer = new Socket("localhost",nextPort);
 		PrintWriter outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
 		BufferedReader inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
 
 		while(true)
-		{
+		{			
 			//Read the menu choice that the client user has selected
 			clientInput = in.readLine();
 			System.out.println(clientInput);
@@ -109,6 +113,48 @@ public class server3 {
 					break;
 			}
 		}
+	}
+	
+	public static boolean testConnectionPrev(int p)
+	{
+		TelnetClient client = new TelnetClient();
+		client.setConnectTimeout(5000);
+		
+		 try
+		 {
+			 client.connect("localhost", p);
+		 }
+		 catch (SocketException socketException)
+		 {		 
+			return false;
+		 }
+		 catch (IOException ioException)
+		 { 
+		    return false;
+		 }
+		 
+		 return true;
+	}
+	
+	public static boolean testConnectionNext(int p)
+	{	
+		TelnetClient client = new TelnetClient();
+		client.setConnectTimeout(5000);
+		
+		 try
+		 {
+			 client.connect("localhost", p);
+		 }
+		 catch (SocketException socketException)
+		 {		 
+			return false;
+		 }
+		 catch (IOException ioException)
+		 { 
+		    return false;
+		 }
+		 
+		 return true;
 	}
 	
 	public static int hashFunction(String s)

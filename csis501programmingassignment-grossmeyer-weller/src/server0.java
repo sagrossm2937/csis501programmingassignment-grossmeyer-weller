@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import org.apache.commons.net.telnet.TelnetClient;
+
 public class server0 {
 	
 	static int TABLE_SIZE = 16;
@@ -14,13 +16,16 @@ public class server0 {
 		int choice;
 		String key, value;
 		int hashKey;
+		int port = 9000;
+		int prevPort = 9004;
+		int nextPort = 9001;
 		
 		//Create the hash table and put an initial value in it
 		Hashtable<String, String> h = new Hashtable<String, String>();
 		h.put("Fast & Furious", "128.17.123.38");
 		
 		//Listen for incoming connections on port 9000
-		ServerSocket serversocket = new ServerSocket(9000);			
+		ServerSocket serversocket = new ServerSocket(port);			
 		System.out.println("Waiting for incoming connections");
 
 		//Accept the connection on the socket and create input and output streams
@@ -29,12 +34,12 @@ public class server0 {
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		
 		//Create socket and input and output streams to next peer in the circle
-		Socket socketNextServer = new Socket("localhost",9001);
+		Socket socketNextServer = new Socket("localhost",nextPort);
 		PrintWriter outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
 		BufferedReader inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
 
 		//Listen for incoming connections on port 9004 to complete the circle
-		ServerSocket serversocketprev = new ServerSocket(9004);
+		ServerSocket serversocketprev = new ServerSocket(prevPort);
 		
 		//Accept incoming connections on the socket and create input and output streams
 		Socket socketPrevServer = serversocketprev.accept();
@@ -43,80 +48,148 @@ public class server0 {
 
 		while(true)
 		{
-			//Read the menu choice that the client user has selected
-			clientInput = in.readLine();
-			System.out.println(clientInput);
-			choice = Integer.valueOf(clientInput);
-			
-			switch(choice)
+			try
 			{
-				//Case 1 is for putting a key, value pair in the DHT
-				case 1:
-					//Read the key
-					clientInput = in.readLine();
-					key = clientInput;
-					
-					//Generate the hash key by calling hashFunction
-					hashKey = hashFunction(key);
-					
-					//Read the value
-					clientInput = in.readLine();
-					value = clientInput;
-					
-					//If hashKey is 0, the key, value pair will be inserted into the hash table on this peer
-					//Else it is sent to the next peer in the circle
-					if(hashKey <= 3)
-					{
-						//Put the key, value pair in the hash table and return it to the client for verification
-						h.put(key, value);
-						out.println(h);
-					}
-					else
-					{
-						//Send necessary values to next peer in circle
-						outNextServer.println(choice);
-						outNextServer.println(key);
-						outNextServer.println(value);
+				//Read the menu choice that the client user has selected
+				clientInput = in.readLine();
+				System.out.println(clientInput);
+				choice = Integer.valueOf(clientInput);
+				
+				switch(choice)
+				{
+					//Case 1 is for putting a key, value pair in the DHT
+					case 1:
+						//Read the key
+						clientInput = in.readLine();
+						key = clientInput;
 						
-						//Read the response from further peers in the circle to pass on to the client
-						serverResponse = inNextServer.readLine();
-						System.out.println(serverResponse);
-						out.println(serverResponse);
-					}
-					break;
-				//Case 2 is for retrieving the IP address value from the DHT for a user entered key
-				case 2:
-					//Read the key
-					clientInput = in.readLine();
-					key = clientInput;
-					
-					//Generate the hash key by calling hashFunction
-					hashKey = hashFunction(key);					
-					
-					if(hashKey <= 3 && h.containsKey(key))
-					{
-						//Put the key, value pair in the hash table and return it to the client for verification
-						value = h.get(key);
-						out.println(value);
-					}
-					else if(hashKey > 3)
-					{
-						//Send necessary values to next peer in circle
-						outNextServer.println(choice);
-						outNextServer.println(key);
+						//Generate the hash key by calling hashFunction
+						hashKey = hashFunction(key);
 						
-						//Read the response from further peers in the circle to pass on to the client
-						serverResponse = inNextServer.readLine();
-						System.out.println(serverResponse);
-						out.println(serverResponse);
-					}
-					else
-					{
-						out.println("Movie is not in DHT. Try again.");
-					}
-					break;
+						//Read the value
+						clientInput = in.readLine();
+						value = clientInput;
+						
+						//If hashKey is 0, the key, value pair will be inserted into the hash table on this peer
+						//Else it is sent to the next peer in the circle
+						if(hashKey <= 3)
+						{
+							//Put the key, value pair in the hash table and return it to the client for verification
+							h.put(key, value);
+							out.println(h);
+						}
+						else
+						{
+							//Send necessary values to next peer in circle
+							outNextServer.println(choice);
+							outNextServer.println(key);
+							outNextServer.println(value);
+							
+							//Read the response from further peers in the circle to pass on to the client
+							serverResponse = inNextServer.readLine();
+							System.out.println(serverResponse);
+							out.println(serverResponse);
+						}
+						break;
+					//Case 2 is for retrieving the IP address value from the DHT for a user entered key
+					case 2:
+						//Read the key
+						clientInput = in.readLine();
+						key = clientInput;
+						
+						//Generate the hash key by calling hashFunction
+						hashKey = hashFunction(key);					
+						
+						if(hashKey <= 3 && h.containsKey(key))
+						{
+							//Put the key, value pair in the hash table and return it to the client for verification
+							value = h.get(key);
+							out.println(value);
+						}
+						else if(hashKey > 3)
+						{
+							//Send necessary values to next peer in circle
+							outNextServer.println(choice);
+							outNextServer.println(key);
+							
+							//Read the response from further peers in the circle to pass on to the client
+							serverResponse = inNextServer.readLine();
+							System.out.println(serverResponse);
+							out.println(serverResponse);
+						}
+						else
+						{
+							out.println("Movie is not in DHT. Try again.");
+						}
+						break;
+				}
+			}
+			catch(SocketException e)
+			{
+/*				if(socket.isClosed())
+				{
+					System.out.println("Previous server disconnected");	
+					System.out.println("Waiting for incoming connections");
+					
+					//Accept the connection on the socket and create input and output streams
+					socket = serversocket.accept();
+					out = new PrintWriter(socket.getOutputStream(), true);
+					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				}
+*/				if(socketNextServer.isClosed())
+				{
+					nextPort++;
+					
+					//Create socket and input and output streams to next peer in the circle
+					socketNextServer = new Socket("localhost",nextPort);
+					outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
+					inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
+				}
+
 			}
 		}
+	}
+	
+	public static boolean testConnectionPrev(int p)
+	{
+		TelnetClient client = new TelnetClient();
+		client.setConnectTimeout(5000);
+		
+		 try
+		 {
+			 client.connect("localhost", p);
+		 }
+		 catch (SocketException socketException)
+		 {		 
+			return false;
+		 }
+		 catch (IOException ioException)
+		 { 
+		    return false;
+		 }
+		 
+		 return true;
+	}
+	
+	public static boolean testConnectionNext(int p)
+	{	
+		TelnetClient client = new TelnetClient();
+		client.setConnectTimeout(5000);
+		
+		 try
+		 {
+			 client.connect("localhost", p);
+		 }
+		 catch (SocketException socketException)
+		 {		 
+			return false;
+		 }
+		 catch (IOException ioException)
+		 { 
+		    return false;
+		 }
+		 
+		 return true;
 	}
 	
 	public static int hashFunction(String s)
