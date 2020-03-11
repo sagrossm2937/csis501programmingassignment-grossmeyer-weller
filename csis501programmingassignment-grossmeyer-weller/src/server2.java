@@ -117,10 +117,13 @@ public class server2 {
 			}
 			catch(SocketException e)
 			{
+				//Catches if the connection to the previous peer was broken
 				if(!testConnection(port))
 				{
+					//Closes the port
 					serversocket.close();	
 					
+					//Creates a new server socket and listens for a connection
 					serversocket = new ServerSocket(port);
 					System.out.println("Waiting for incoming connections");
 					
@@ -128,41 +131,46 @@ public class server2 {
 					socket = serversocket.accept();
 					out = new PrintWriter(socket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					System.out.println("You are here");
-					throw e;
 				}
-/*				else if(!testConnection(nextPort))
+				//Catches if the connection to the next peer was broken
+				else if(!testConnection(nextPort))
 				{
+					//Increments the port to connect to the next peer after the one that disconnected
 					nextPort++;
-					
+
 					//Create socket and input and output streams to next peer in the circle
 					socketNextServer = new Socket("localhost",nextPort);
 					outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
 					inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
+					out.println("Network temporarily down due to disconnect. Please try again.");
 				}
-*/			
 			}
 		}
 	}
 	
 	public static boolean testConnection(int p)
 	{
+		//Create Telnet Client for testing availability of port
 		TelnetClient client = new TelnetClient();
 		client.setConnectTimeout(5000);
 		
 		 try
 		 {
+			 //Tries to connect on the port p
 			 client.connect("localhost", p);
 		 }
 		 catch (SocketException socketException)
-		 {		 
-			return false;
+		 {	
+			 //Return false if there is no active connection on the port
+			 return false;
 		 }
 		 catch (IOException ioException)
 		 { 
-		    return false;
+			 //Return false if there is no active connection on the port
+		     return false;
 		 }
 		 
+		 //Return true if there is an active connection on the port
 		 return true;
 	}
 	

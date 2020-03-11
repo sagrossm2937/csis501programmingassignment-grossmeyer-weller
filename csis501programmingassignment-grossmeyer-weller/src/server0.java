@@ -80,9 +80,6 @@ public class server0 {
 						}
 						else
 						{
-							System.out.println(choice);
-							System.out.println(key);
-							System.out.println(value);
 							//Send necessary values to next peer in circle
 							outNextServer.println(choice);
 							outNextServer.println(key);
@@ -129,9 +126,14 @@ public class server0 {
 			}
 			catch(SocketException e)
 			{
-/*				if(!testConnection(port))
+				//Catches if the connection to the previous peer was broken
+				if(!testConnection(port))
 				{
-					System.out.println("Previous server disconnected");	
+					//Closes the port
+					serversocket.close();	
+					
+					//Creates a new server socket and listens for a connection
+					serversocket = new ServerSocket(port);
 					System.out.println("Waiting for incoming connections");
 					
 					//Accept the connection on the socket and create input and output streams
@@ -139,16 +141,17 @@ public class server0 {
 					out = new PrintWriter(socket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				}
-*/				
-				if(!testConnection(nextPort))
+				//Catches if the connection to the next peer was broken
+				else if(!testConnection(nextPort))
 				{
+					//Increments the port to connect to the next peer after the one that disconnected
 					nextPort++;
 
 					//Create socket and input and output streams to next peer in the circle
 					socketNextServer = new Socket("localhost",nextPort);
 					outNextServer = new PrintWriter(socketNextServer.getOutputStream(), true);
 					inNextServer = new BufferedReader(new InputStreamReader(socketNextServer.getInputStream()));
-					System.out.println("You are here");
+					out.println("Network temporarily down due to disconnect. Please try again.");
 				}
 			}
 		}
@@ -156,22 +159,27 @@ public class server0 {
 	
 	public static boolean testConnection(int p)
 	{
+		//Create Telnet Client for testing availability of port
 		TelnetClient client = new TelnetClient();
 		client.setConnectTimeout(5000);
 		
 		 try
 		 {
+			 //Tries to connect on the port p
 			 client.connect("localhost", p);
 		 }
 		 catch (SocketException socketException)
-		 {		 
-			return false;
+		 {
+			 //Return false if there is no active connection on the port
+			 return false;
 		 }
 		 catch (IOException ioException)
-		 { 
-		    return false;
+		 {
+			 //Return false if there is no active connection on the port
+		     return false;
 		 }
 		 
+		 //Return true if there is an active connection on the port
 		 return true;
 	}
 	
