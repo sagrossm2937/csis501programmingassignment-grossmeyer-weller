@@ -31,6 +31,7 @@ public class server2 {
 		Socket socket = serversocket.accept();
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		System.out.println("Connected");
 		
 		//Create socket and input and output streams to next peer in the circle
 		Socket socketNextServer = new Socket("localhost",nextPort);
@@ -122,6 +123,7 @@ public class server2 {
 				{
 					//Closes the port
 					serversocket.close();	
+					System.out.println("Disconnected");
 					
 					//Creates a new server socket and listens for a connection
 					serversocket = new ServerSocket(port);
@@ -131,6 +133,7 @@ public class server2 {
 					socket = serversocket.accept();
 					out = new PrintWriter(socket.getOutputStream(), true);
 					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					System.out.println("Connected");
 				}
 				//Catches if the connection to the next peer was broken
 				else if(!testConnection(nextPort))
