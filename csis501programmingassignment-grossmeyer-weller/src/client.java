@@ -60,7 +60,7 @@ public class client{
 				case 2:
 					//Enter and read the key to retrieve the value for
 					System.out.println("Enter the Movie name:");
-					key = input.next();
+					key = input.nextLine();
 					
 					//Send the menu choice and the key to the peer
 					out.println(choice);

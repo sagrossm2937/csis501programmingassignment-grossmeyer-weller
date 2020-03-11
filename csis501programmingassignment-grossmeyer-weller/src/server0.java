@@ -76,7 +76,6 @@ public class server0 {
 						//Send necessary values to next peer in circle
 						outNextServer.println(choice);
 						outNextServer.println(key);
-						outNextServer.println(hashKey);
 						outNextServer.println(value);
 						
 						//Read the response from further peers in the circle to pass on to the client
@@ -87,11 +86,35 @@ public class server0 {
 					break;
 				//Case 2 is for retrieving the IP address value from the DHT for a user entered key
 				case 2:
+					//Read the key
 					clientInput = in.readLine();
-					System.out.println(clientInput);
 					key = clientInput;
-					value = h.get(key);
-					out.println(value);
+					
+					//Generate the hash key by calling hashFunction
+					hashKey = hashFunction(key);					
+					
+					if(hashKey <= 3 && h.containsKey(key))
+					{
+						//Put the key, value pair in the hash table and return it to the client for verification
+						value = h.get(key);
+						out.println(value);
+					}
+					else if(hashKey > 3)
+					{
+						//Send necessary values to next peer in circle
+						outNextServer.println(choice);
+						outNextServer.println(key);
+						
+						//Read the response from further peers in the circle to pass on to the client
+						serverResponse = inNextServer.readLine();
+						System.out.println(serverResponse);
+						out.println(serverResponse);
+					}
+					else
+					{
+						out.println("Movie is not in DHT. Try again.");
+					}
+					break;
 			}
 		}
 	}
@@ -112,5 +135,4 @@ public class server0 {
 		//return the hash value r modulo the DHT TABLE_SIZE
 		return Math.abs(r % TABLE_SIZE);
 	}
-
 }

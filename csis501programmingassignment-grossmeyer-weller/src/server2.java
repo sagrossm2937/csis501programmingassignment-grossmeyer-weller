@@ -3,6 +3,9 @@ import java.net.*;
 import java.util.*;
 
 public class server2 {
+	
+	static int TABLE_SIZE = 16;
+	
 	public static void main(String[] args) throws Exception
 	{
 		//Create local variables
@@ -45,9 +48,8 @@ public class server2 {
 					clientInput = in.readLine();
 					key = clientInput;
 					
-					//Read the hashKey
-					clientInput = in.readLine();
-					hashKey = Integer.valueOf(clientInput);
+					//Generate the hash key by calling hashFunction
+					hashKey = hashFunction(key);
 					
 					//Read the value
 					clientInput = in.readLine();
@@ -55,7 +57,7 @@ public class server2 {
 					
 					//If hashKey is less than 1, the key, value pair will be inserted into the hash table on this peer
 					//Else it is sent to the next peer in the circle
-					if(hashKey <= 11 && hashKey >= 8)
+					if(hashKey <= 11)
 					{
 						//Put the key, value pair in the hash table and return it to the client for verification
 						h.put(key, value);
@@ -66,7 +68,6 @@ public class server2 {
 						//Send necessary values to next peer in circle
 						outNextServer.println(choice);
 						outNextServer.println(key);
-						outNextServer.println(hashKey);
 						outNextServer.println(value);
 						
 						//Read the response from further peers in the circle to pass on to the client
@@ -77,13 +78,53 @@ public class server2 {
 					break;
 				//Case 2 is for retrieving the IP address value from the DHT for a user entered key
 				case 2:
+					//Read the key
 					clientInput = in.readLine();
-					System.out.println(clientInput);
 					key = clientInput;
-					value = h.get(key);
-					out.println(value);
+					
+					//Generate the hash key by calling hashFunction
+					hashKey = hashFunction(key);					
+					
+					if(hashKey <= 11 && h.containsKey(key))
+					{
+						//Put the key, value pair in the hash table and return it to the client for verification
+						value = h.get(key);
+						out.println(value);
+					}
+					else if(hashKey > 11)
+					{
+						//Send necessary values to next peer in circle
+						outNextServer.println(choice);
+						outNextServer.println(key);
+						
+						//Read the response from further peers in the circle to pass on to the client
+						serverResponse = inNextServer.readLine();
+						System.out.println(serverResponse);
+						out.println(serverResponse);
+					}
+					else
+					{
+						out.println("Movie is not in DHT. Try again.");
+					}
+					break;
 			}
 		}
 	}
-
+	
+	public static int hashFunction(String s)
+	{
+		//Create variables
+		int r = 0;
+		char c;
+		
+		//Run through string and create hash value r
+		for(int i = 0;i < s.length();i++)
+		{
+			c = s.charAt(i);
+			r = (int) c + 41*r;
+		}
+		
+		//return the hash value r modulo the DHT TABLE_SIZE
+		return Math.abs(r % TABLE_SIZE);
+	}
 }
