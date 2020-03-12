@@ -2,7 +2,7 @@
 
 This program runs a DHT on up to four peers in a circular P2P network. The key for the DHT is a movie title and the value is the IP address that it is stored at (user entered).
 
-To execute, run the classes in this order: server3.java, server2.java, server1.java, server0.java, client.java. This sets up the initial state with the client connected to server0.java and all four of the peers connected in a circle.
+To execute, run all of the servers before running the client. Upon running the client, all of the servers will connect in a circle ordered: client->server0->server1->server2->server3->server0. This sets up the initial state with the client connected to server0.java and all four of the peers connected in a circle.
 
 Part A:
 
@@ -24,7 +24,7 @@ Part A:
  
 Part B:
 
--The P2P network can maintain it's structure if a peer disconnects from the network.
+-The P2P network can maintain it's structure if a peer disconnects from the network (except for server0, that cannot disconnect).
  If one of the peers disconnects, the next peer in the circle immediately catches a SocketException.
  That peer then restarts it's incoming connection and starts listening again.
  When the client tries an action that requires the previous peer to try to contact the disconnected peer a SocketException is caught.
@@ -33,4 +33,7 @@ Part B:
  The next peer then takes over the keys handled by the disconnected peer and the network has maintained its structure.
  The client can then continue putting and getting from the DHT as if nothing happened.
  
--
+-The P2P network maintains its structure when a new peer is added.
+ When the network is being brought up, as you start new peers, they are added into the network.
+ Attempted to handle when a peer is removed and then added back in in server0.java. Did not work due to dynamic connection handling.
+ 
